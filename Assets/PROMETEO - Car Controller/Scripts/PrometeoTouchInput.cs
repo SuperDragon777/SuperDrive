@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class PrometeoTouchInput : MonoBehaviour
+public class PrometeoTouchInput : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
 
     public bool changeScaleOnPressed = false;
@@ -14,21 +15,32 @@ public class PrometeoTouchInput : MonoBehaviour
 
     void Start(){
       rectTransform = GetComponent<RectTransform>();
+      if(rectTransform == null){
+        rectTransform = gameObject.AddComponent<RectTransform>();
+      }
       initialScale = rectTransform.localScale;
     }
 
-    public void ButtonDown(){
+    public void OnPointerDown(PointerEventData eventData){
       buttonPressed = true;
-      if(changeScaleOnPressed){
+      if(changeScaleOnPressed && rectTransform != null){
         rectTransform.localScale = initialScale * scaleDownMultiplier;
       }
     }
 
-    public void ButtonUp(){
+    public void OnPointerUp(PointerEventData eventData){
       buttonPressed = false;
-      if(changeScaleOnPressed){
+      if(changeScaleOnPressed && rectTransform != null){
         rectTransform.localScale = initialScale;
       }
+    }
+
+    public void ButtonDown(){
+      OnPointerDown(null);
+    }
+
+    public void ButtonUp(){
+      OnPointerUp(null);
     }
 
 }

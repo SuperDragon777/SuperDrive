@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CameraFollow : MonoBehaviour {
 
@@ -48,10 +49,33 @@ public class CameraFollow : MonoBehaviour {
 		}
 	}
 
+	bool IsPointerOverUI()
+	{
+		if (EventSystem.current == null) return false;
+
+		if (Input.touchCount > 0)
+		{
+			foreach (Touch touch in Input.touches)
+			{
+				if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+					return true;
+			}
+			return false;
+		}
+
+		return EventSystem.current.IsPointerOverGameObject();
+	}
+
 	void FixedUpdate()
 	{
-		float mouseX = Input.GetAxis("Mouse X");
-		float mouseY = Input.GetAxis("Mouse Y");
+		float mouseX = 0f;
+		float mouseY = 0f;
+
+		if (!IsPointerOverUI())
+		{
+			mouseX = Input.GetAxis("Mouse X");
+			mouseY = Input.GetAxis("Mouse Y");
+		}
 
 		_yaw += mouseX * mouseSensitivity;
 		_pitch -= mouseY * mouseSensitivity;

@@ -241,6 +241,16 @@ public class PrometeoCarController : MonoBehaviour
           }
         }
 
+        bool isMobileDevice = Application.isMobilePlatform || 
+                              Application.platform == RuntimePlatform.Android || 
+                              Application.platform == RuntimePlatform.IPhonePlayer ||
+                              (Input.touchSupported && Input.touchCount > 0);
+
+        if(useTouchControls && !isMobileDevice && !Application.isEditor){
+          useTouchControls = false;
+          Debug.Log("Touch controls disabled - not running on mobile device");
+        }
+
         if(useTouchControls){
           if(throttleButton != null && reverseButton != null &&
           turnRightButton != null && turnLeftButton != null
@@ -251,12 +261,23 @@ public class PrometeoCarController : MonoBehaviour
             turnLeftPTI = turnLeftButton.GetComponent<PrometeoTouchInput>();
             turnRightPTI = turnRightButton.GetComponent<PrometeoTouchInput>();
             handbrakePTI = handbrakeButton.GetComponent<PrometeoTouchInput>();
-            touchControlsSetup = true;
+
+            if(throttlePTI != null && reversePTI != null && turnLeftPTI != null && 
+               turnRightPTI != null && handbrakePTI != null){
+              touchControlsSetup = true;
+              Debug.Log("Touch controls successfully initialized");
+            }else{
+              String ex = "One or more buttons are missing PrometeoTouchInput component. " +
+                          "Please add PrometeoTouchInput component to all control buttons.";
+              Debug.LogError(ex);
+              touchControlsSetup = false;
+            }
 
           }else{
             String ex = "Touch controls are not completely set up. You must drag and drop your scene buttons in the" +
             " PrometeoCarController component.";
             Debug.LogWarning(ex);
+            touchControlsSetup = false;
           }
         }
 
@@ -377,7 +398,7 @@ public class PrometeoCarController : MonoBehaviour
       if(useUI){
           try{
             float absoluteCarSpeed = Mathf.Abs(carSpeed);
-            carSpeedText.text = Mathf.RoundToInt(absoluteCarSpeed).ToString();
+            carSpeedText.text = $"Speed: {Mathf.RoundToInt(absoluteCarSpeed)}";
           }catch(Exception ex){
             Debug.LogWarning(ex);
           }
